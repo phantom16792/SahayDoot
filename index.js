@@ -1,4 +1,4 @@
-
+let Medical = document.getElementById("Med")
 Medical.addEventListener("dblclick" , () =>{
     alert("Medical");
 });
