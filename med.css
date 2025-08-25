@@ -1,16 +1,12 @@
 
 @media (max-width:500px){
 
-
-.help {
-  border: 1px;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
 .emergency_button {
   margin-top: 25px;
   font-size: 75vmin;
   height: 95vmin;
+  width: 95vmin;
+  border-radius: 1rem;
 }
 p {
   font-size: 20px;
