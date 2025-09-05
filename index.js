@@ -30,3 +30,7 @@ async function getLocationFromCoords(lat, lon) {
     console.error("Error:", error);
   }
 }
+
+
+let info = document.querySelector("info");
+info.innerText() = location;
