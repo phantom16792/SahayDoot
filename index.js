@@ -8,7 +8,7 @@ function gotlocation(location) {
   getLocationFromCoords(
     location.coords.latitude,
     location.coords.longitude
-  ).then((location) => console.log(location.display_name));
+  ).then((location) => console.log(location));
 }
 
 function nolocation() {
