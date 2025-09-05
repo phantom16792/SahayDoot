@@ -32,5 +32,3 @@ async function getLocationFromCoords(lat, lon) {
 }
 
 
-let info = document.querySelector("infor");
-info.textContent = "aloo";
