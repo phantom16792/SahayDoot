@@ -2,7 +2,7 @@ let emergency_btn = document.getElementById("emer_btn");
 
 function gotlocation(location) {
   console.log(
-    `latitude: ${location.coords.latitude}\nlongitude: ${location.coords.longitude}\nAddress : ${data.display_name}`
+    `latitude: ${location.coords.latitude}\nlongitude: ${location.coords.longitude}\n`
   );
   // Usage
   getLocationFromCoords(
