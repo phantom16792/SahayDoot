@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sahaydoot - Workers Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      color: #333;
+    }
+
+    header {
+      background: #0a3d62;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    nav a {
+      color: white;
+      margin-left: 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .dashboard {
+      padding: 20px;
+    }
+
+    .card1, .card2 {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0px 3px 8px rgba(0,0,0,0.1);
+      display: flex;
+      gap: 20px;
+    }
+
+    /* Left side - Photo + Info */
+    .info {
+      width: 180px;
+      text-align: center;
+    }
+
+    .photo-placeholder {
+      width: 100px;
+      height: 100px;
+      background: #ddd;
+      border-radius: 10px;
+      margin: 0 auto 10px auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #555;
+      font-size: 0.9rem;
+    }
+
+    .info p {
+      margin: 5px 0;
+      font-size: 15px;
+    }
+
+    /* Right side - Emergency details */
+    .details {
+      flex: 1;
+    }
+
+    .details h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: #0a3d62;
+    }
+
+    .status {
+      font-size: 0.9rem;
+      margin: 8px 0;
+      padding: 5px 10px;
+      border-radius: 5px;
+      display: inline-block;
+    }
+
+    .pending { background: #f39c12; color: white; }
+    .in-progress { background: #3498db; color: white; }
+    .resolved { background: #2ecc71; color: white; }
+
+    .actions button {
+      margin: 5px;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .accept { background: #3498db; color: white; }
+    .resolve { background: #2ecc71; color: white; }
+    .forward { background: #e67e22; color: white; }
+
+    footer {
+      background: #0a3d62;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Sahaydoot - Workers Dashboard</h1>
+    <nav>
+      <a href="#">Hospital</a>
+      <a href="#">Police</a>
+      <a href="#">Fire</a>
+    </nav>
+  </header>
+
+  <div class="dashboard">
+    <!-- Example Request 1 -->
+    <div class="card1">
+      <!-- Left: Worker Info -->
+      <div class="info">
+        <div class="photo-placeholder">Photo</div>
+        <p><strong>Name:</strong></p>
+        <p><strong>Age:</strong></p>
+        <p><strong>Location:</strong></p>
+      </div>
+
+      <!-- Right: Emergency Details -->
+      <div class="details">
+        <h3>Emergency Request #101</h3>
+        <p><strong>Type:</strong> Road Accident</p>
+        <p><strong>Location:</strong> MG Road, Pune</p>
+        <p><strong>Time:</strong> 20-Aug-2025, 10:30 AM</p>
+        <span class="status pending">Pending</span>
+        <div class="actions">
+          <button class="accept" onclick="updateStatus(this, 'in-progress')">Accept</button>
+          <button class="resolve" onclick="updateStatus(this, 'resolved')">Resolve</button>
+          <button class="forward" onclick="alert('Forwarded to another department')">Forward</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Example Request 2 -->
+    <div class="card2">
+      <!-- Left: Worker Info -->
+      <div class="info">
+        <div class="photo-placeholder">Photo</div>
+        <p><strong>Name:</strong></p>
+        <p><strong>Age:</strong></p>
+        <p><strong>Location:</strong></p>
+      </div>
+
+      <!-- Right: Emergency Details -->
+      <div class="details">
+        <h3>Emergency Request #102</h3>
+        <p><strong>Type:</strong> Fire Outbreak</p>
+        <p><strong>Location:</strong> Hadapsar, Pune</p>
+        <p><strong>Time:</strong> 20-Aug-2025, 11:15 AM</p>
+        <span class="status in-progress">In Progress</span>
+        <div class="actions">
+          <button class="resolve" onclick="updateStatus(this, 'resolved')">Resolve</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 Sahaydoot | Workers Interface</p>
+  </footer>
+
+  <script>
+    function updateStatus(button, newStatus) {
+      let statusSpan = button.closest(".details").querySelector(".status");
+      if (newStatus === "in-progress") {
+        statusSpan.className = "status in-progress";
+        statusSpan.innerText = "In Progress";
+      } else if (newStatus === "resolved") {
+        statusSpan.className = "status resolved";
+        statusSpan.innerText = "Resolved";
+      }else if (newStatus === "Forwarded"){
+        statusSpan.className = "status forwarded";
+        statusSpan.innerText = "Forwarded";
+      }
+    }
+  </script>
+
+</body>
+</html>
