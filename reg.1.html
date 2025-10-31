@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workers Registration Form</title>
+<style>
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #6fb1fc, #4364f7, #0052d4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+/* Container */
+.container {
+  background: #ffffff;
+  padding: 35px 40px;
+  border-radius: 14px;
+  box-shadow: 0px 8px 25px rgba(0,0,0,0.2);
+  width: 430px;
+  border-top: 6px solid #007bff;
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Heading */
+h2 {
+  text-align: center;
+  color: #007bff;
+  margin-bottom: 20px;
+  font-size: 35px;
+  font-weight: bold;
+}
+
+/* Labels */
+label {
+  display: block;
+  margin-top: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Inputs and Select */
+input, select, textarea {
+  width: 100%;
+  padding: 12px;
+  margin-top: 6px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 6px rgba(0,123,255,0.4);
+}
+
+/* Password toggle */
+.password-toggle {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-size: 13px;
+  margin-top: 4px;
+  color: #555;
+}
+
+.password-toggle input {
+  margin-left: 320px;
+}
+
+/* Button */
+button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 14px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 17px;
+  font-weight: bold;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+}
+
+/* Popup */
+.popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  border: 2px solid #007bff;
+  border-radius: 12px;
+  box-shadow: 0px 8px 20px rgba(0,0,0,0.3);
+  width: 320px;
+  padding: 25px;
+  text-align: center;
+  z-index: 1000;
+  animation: zoomIn 0.5s ease;
+}
+.popup h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  color: #007bff;
+}
+.popup button {
+  margin-top: 15px;
+  background: #007bff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+.popup button:hover {
+  background: #0056b3;
+}
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 900;
+}
+
+
+</style>
+</head>
+<body>
+  <div class="container">
+  <form id="workerForm">
+    <h2>Registration Form</h2>
+    <label>Full Name</label>
+    <input type="text" id="name" required>
+
+    <label>Email</label>
+    <input type="email" id="email" required>
+
+    <label>Password</label>
+    <input type="password" id="password" required>
+    <div class="password-toggle">
+      <input type="checkbox" id="togglePassword"> <label for="togglePassword">Show Password</label>
+    </div>
+
+    <label>Confirm Password</label>
+    <input type="password" id="confirmPassword" required>
+    <div class="password-toggle">
+      <input type="checkbox" id="toggleConfirmPassword"> <label for="toggleConfirmPassword">Show Confirm Password</label>
+    </div>
+
+    <label>Phone Number</label>
+    <input type="tel" id="phone" pattern="[0-9]{10}" placeholder="10-digit number" required>
+
+    <label>Aadhaar Number</label>
+    <input type="text" id="aadhaar" pattern="[0-9]{12}" maxlength="12" placeholder="12-digit Aadhaar" required>
+
+    <label>Address</label>
+    <textarea id="address" rows="3" required></textarea>
+
+    <label>Role</label>
+    <select id="role" required>
+      <option value="">-- Select --</option>
+      <option value="police">Police</option>
+      <option value="fire">Fire Brigade</option>
+      <option value="hospital">Hospital Worker</option>
+    </select>
+
+    <button type="submit">Register</button>
+  </form>
+</div>
+
+<!-- Overlay + Popup -->
+<div class="overlay" id="overlay"></div>
+<div class="popup" id="popup">
+  <h3 id="popupMessage"></h3>
+  <button onclick="closePopup()">OK</button>
+</div>
+
+  </div>  
+</body>
+<script>
+    // Toggle Show/Hide Password
+    document.getElementById("togglePassword").addEventListener("change", function () {
+      const password = document.getElementById("password");
+      password.type = this.checked ? "text" : "password";
+    });
+  
+    // Toggle Show/Hide Confirm Password
+    document.getElementById("toggleConfirmPassword").addEventListener("change", function () {
+      const confirmPassword = document.getElementById("confirmPassword");
+      confirmPassword.type = this.checked ? "text" : "password";
+    });
+  
+    // Form Submission
+    document.getElementById("workerForm").addEventListener("submit", function (e) {
+      e.preventDefault(); // Prevent page reload
+  
+      const password = document.getElementById("password").value.trim();
+      const confirmPassword = document.getElementById("confirmPassword").value.trim();
+      const aadhaar = document.getElementById("aadhaar").value.trim();
+  
+      // Password Match Check
+      if (password !== confirmPassword) {
+        document.getElementById("popupMessage").innerText = "❌ Passwords do not match!";
+        showPopup();
+        return;           
+      }
+  
+      // Aadhaar Validation (must be 12 digits)
+      if (!/^\d{12}$/.test(aadhaar)) {
+        document.getElementById("popupMessage").innerText = "❌ Aadhaar must be exactly 12 digits!";
+        showPopup();
+        return;
+      }
+  
+      // Success Message
+      document.getElementById("popupMessage").innerText = "✅ Worker Registered Successfully!";
+      showPopup();
+  
+      // Reset form
+      document.getElementById("workerForm").reset();
+    });
+  
+    // Show popup
+    function showPopup() {
+      document.getElementById("overlay").style.display = "block";
+      document.getElementById("popup").style.display = "block";
+    }
+  
+    // Close popup
+    function closePopup() {
+      document.getElementById("overlay").style.display = "none";
+      document.getElementById("popup").style.display = "none";
+    }
+  </script>
+  
+</html>
