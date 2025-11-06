@@ -5,6 +5,7 @@ import connectDB from "./config/db.js";
 import volunteerRoutes from "./routes/volunteerRoutes.js";
 import Volunteer from "./models/Volunteer.js";
 import { registerVolunteer } from "./controllers/volunteerController.js";
+import workerRoutes from "./routes/workerRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -12,6 +13,7 @@ const app = express();
 // Middlewares
 app.use(cors());
 app.use(express.json());
+app.use("/api/workers", workerRoutes);
 
 // DB Connection
 connectDB();
