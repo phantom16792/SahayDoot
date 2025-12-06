@@ -1,55 +1,45 @@
 const mongoose = require("mongoose");
 
-// creating schema for user ->
+console.log("Loaded userModel:", __filename);
+
+// GeoJSON reusable schema
+const geoSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      enum: ["Point"],
+      default: "Point",
+      required: true
+    },
+    coordinates: {
+      type: [Number],
+      required: true
+    }
+  },
+  { _id: false }
+);
+
 const userSchema = new mongoose.Schema({
-    name : {
-        type : String,
-        required : [true, 'A user maust have name'],
-    },
+  name: { type: String, required: true },
 
-    email: {
-        type: String,
-        required: [true, "User must have an email"],
-        unique: true,
-        lowercase: true,
-        match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/, "Please enter a valid email"],
-    },
+  email: { type: String, required: true, unique: true },
 
-    mobNo : {
-        type: String,
-        match: [/^[0-9]{10}$/, "Contact number must be 10 digits"],
-        required : [true, 'User must have mobile number'],
-    },
+  mobNo: { type: String, required: true },
 
-    gender : {
-        type : String,
-        enum : ["male", "female", "other"],
-        required : [true, 'User mustt have gender'],
-    },
+  gender: { type: String, enum: ["male", "female", "other"], required: true },
 
-     locations: [
-        {
-        type: {
-            type: String,
-            enum: ["Point"],
-            default: "Point",
-        },
-        coordinates: {
-            type: [Number], // [longitude, latitude] ha mongo cha GeoJson format aahe.
-            required: true,
-        },
-        },
-    ],
+  location: {
+    type: geoSchema,
+    required: true
+  },
 
-    createdAt : {
-        type : Date,
-        default : Date.now,
-    },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
-// Geospatial index for queries
-userSchema.index({ locations : "2dsphere" });
+// Correct index
+userSchema.index({ location: "2dsphere" });
 
-const User = mongoose.model("User", userSchema);
-
-module.exports = User;
+module.exports = mongoose.model("User", userSchema);

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const app = require("./app");
 const dotenv = require("dotenv");
+const sosRouter = require("./routes/sosRoutes");
 dotenv.config({path : "./.env"});
 
 const DB = process.env.DATABASE;
