@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sahaydoot | Login & Signup</title>
+  <link rel="icon" type="image/jpeg" href="sahaydoot_logo.jpg" />
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #ffffff;   /* WHITE BACKGROUND */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+    }
+
+    .wrapper {
+      width: 350px;
+      padding: 30px;
+      border-radius: 20px;
+      background: #ffffff;
+      border: 2px solid rgba(0,0,0,0.1);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      text-align: center;
+      transition: 0.3s;
+    }
+
+    .wrapper:hover {
+      transform: scale(1.01);
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin-bottom: 10px;
+    }
+
+    .tab-buttons {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+
+    .tab-buttons button {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid #ff4b5c;
+      border-radius: 30px;
+      background: #ffffff;
+      color: #ff0000;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .tab-buttons button.active {
+      background: linear-gradient(135deg, #ff4b5c, #ff0000);
+      color: white;
+      box-shadow: 0 4px 12px rgba(255,0,0,0.4);
+    }
+
+    .input-group {
+      text-align: left;
+      margin-bottom: 15px;
+    }
+
+    .input-group label {
+      font-size: 14px;
+      font-weight: bold;
+      color: #444;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 10px;
+      border: 2px solid rgba(200,200,200,0.6);
+      outline: none;
+      background: #f9f9f9;
+      font-size: 15px;
+      color: #333;
+      transition: 0.3s;
+    }
+
+    .input-group input:focus {
+      border-color: #ff0000;
+      background: #fff;
+      box-shadow: 0 0 8px rgba(255,0,0,0.3);
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      background: linear-gradient(135deg, #ff4b5c, #ff0000);
+      border: none;
+      border-radius: 30px;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(255,0,0,0.4);
+      transition: 0.3s;
+    }
+
+    .submit-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <img src="sahaydoot_logo.jpg" class="logo" />
+
+    <!-- TABS -->
+    <div class="tab-buttons">
+      <button id="loginTab" class="active">Sign In</button>
+      <button id="signupTab">Sign Up</button>
+    </div>
+
+    <!-- SIGN IN FORM -->
+    <form id="loginForm">
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" placeholder="Enter your email" required />
+      </div>
+
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" placeholder="Enter your password" required />
+      </div>
+
+      <button class="submit-btn">Login</button>
+    </form>
+
+    <!-- SIGN UP FORM -->
+    <form id="signupForm" class="hidden">
+      <div class="input-group">
+        <label>Full Name</label>
+        <input type="text" placeholder="Enter your name" required />
+      </div>
+
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" placeholder="Enter email" required />
+      </div>
+
+      <div class="input-group">
+        <label>Mobile Number</label>
+        <input type="text" placeholder="Enter phone number" required />
+      </div>
+
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" placeholder="Create password" required />
+      </div>
+
+      <button class="submit-btn">Create Account</button>
+    </form>
+
+  </div>
+
+  <script>
+    const loginTab = document.getElementById("loginTab");
+    const signupTab = document.getElementById("signupTab");
+    const loginForm = document.getElementById("loginForm");
+    const signupForm = document.getElementById("signupForm");
+
+    loginTab.onclick = () => {
+      loginTab.classList.add("active");
+      signupTab.classList.remove("active");
+      loginForm.classList.remove("hidden");
+      signupForm.classList.add("hidden");
+    };
+
+    signupTab.onclick = () => {
+      signupTab.classList.add("active");
+      loginTab.classList.remove("active");
+      signupForm.classList.remove("hidden");
+      loginForm.classList.add("hidden");
+    };
+  </script>
+
+</body>
+</html>

@@ -6,6 +6,75 @@
     <title>Sahaydoot</title>
     <link rel="icon" type="image/jpeg" href="sahaydoot_logo.jpg" />
     <link rel="stylesheet" href="style.css" />
+
+  <style>
+  /* Navbar container */
+  .navbar {
+    display: flex;
+    justify-content: center; /* center the navbar */
+    align-items: center;
+    gap: 20px; /* space between logo and buttons */
+    padding: 15px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px); /* glassmorphism effect */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 30px;
+    margin: 10px auto;
+    max-width: 400px;
+  }
+
+  /* Navbar links as pills */
+  .navbar a {
+    text-decoration: none;
+    color: #fff;
+    background: linear-gradient(135deg, #ff4b5c, #ff0000);
+    padding: 10px 25px;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
+  }
+
+  /* Hover effect */
+  .navbar a:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(255, 0, 0, 0.6);
+    background: linear-gradient(135deg, #ff0000, #cc0000);
+  }
+
+  /* Logo styling */
+  #logo {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  /* Responsive for mobile */
+  @media (max-width: 600px) {
+    .navbar {
+      flex-direction: column;
+      padding: 10px;
+      gap: 10px;
+      max-width: 90%;
+    }
+
+    .navbar a {
+      padding: 8px 20px;
+      font-size: 0.9rem;
+    }
+
+    #logo {
+      height: 40px;
+      width: 40px;
+    }
+  }
+</style>
+
+
   </head>
   <body>
     <div class="navbar">
@@ -65,6 +134,6 @@
         </div>
       </a>
     </div>
-    <script src="index.js"></script>
+    <script type="Module" src="index.js"></script>
   </body>
 </html>

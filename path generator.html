@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>User ↔ Receiver Route + Copyable Email HTML</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <!-- Leaflet Routing Machine CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css"
+  />
+
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: #f5f7fa;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #map {
+      height: 45vh;
+      width: 100%;
+    }
+
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      z-index: 1000;
+      font-size: 13px;
+    }
+
+    .top-bar-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .top-bar-title {
+      font-weight: 600;
+    }
+
+    .receiver-inputs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    input[type="number"] {
+      width: 110px;
+      padding: 4px 6px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      font-size: 12px;
+    }
+
+    button {
+      background-color: #0078ff;
+      border: none;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      background-color: #005ecb;
+    }
+
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .email-box {
+      padding: 10px 16px;
+      background: #ffffff;
+      border-top: 1px solid #e5e7eb;
+      overflow: auto;
+    }
+
+    .email-box h3 {
+      margin: 0 0 8px 0;
+      font-size: 15px;
+    }
+
+    .email-box small {
+      display: block;
+      margin-bottom: 6px;
+      color: #6b7280;
+      font-size: 12px;
+    }
+
+    pre {
+      background: #0f172a;
+      color: #e5e7eb;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <div class="top-bar-title">📍 User ↔ Receiver route & email HTML (copy below)</div>
+      <div class="receiver-inputs">
+        <input
+          type="number"
+          id="recvLat"
+          step="0.000001"
+          placeholder="Receiver lat"
+        />
+        <input
+          type="number"
+          id="recvLon"
+          step="0.000001"
+          placeholder="Receiver lon"
+        />
+        <button onclick="setReceiverAndRoute()">Set receiver & route</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:4px;">
+      <button onclick="generateEmailHtml()">Generate Email HTML</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div id="map"></div>
+
+    <div class="email-box">
+      <h3>Generated Email HTML (copy from here)</h3>
+      <small>
+        Steps: 1) Allow location. 2) Enter receiver lat/lon and click “Set receiver & route”.  
+        3) Click “Generate Email HTML”. 4) Copy all text below into your email/template.
+      </small>
+      <pre id="emailOutput">&lt;!-- Click "Generate Email HTML" after setting route --&gt;</pre>
+    </div>
+  </div>
+
+  <!-- JS Libraries -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+  <!-- leaflet-image plugin -->
+  <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-image/v0.0.4/leaflet-image.js"></script>
+
+  <script>
+    // Map with canvas so vectors export correctly. [web:24][web:13]
+    var map = L.map("map", {
+      preferCanvas: true
+    }).setView([20.5937, 78.9629], 5);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "© OpenStreetMap contributors"
+    }).addTo(map);
+
+    // Example static locations array (user will be added as "Me"). [web:67][web:61]
+    const locations = [
+      { name: "Mumbai", coords: [19.076, 72.8777] },
+      { name: "Delhi", coords: [28.6139, 77.209] },
+      { name: "Bangalore", coords: [12.9716, 77.5946] },
+      { name: "Pune", coords: [18.5204, 73.8567] }
+    ];
+
+    locations.forEach((loc) => {
+      L.marker(loc.coords).addTo(map).bindPopup("<b>" + loc.name + "</b>");
+    });
+
+    // User icon
+    var userIcon = L.icon({
+      iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+      iconSize: [40, 40],
+      iconAnchor: [20, 40]
+    });
+
+    let userMarker,
+      accuracyCircle,
+      userLat,
+      userLon;
+    let pathCoords = [];
+    let pathLine = L.polyline([], {
+      color: "#00bfff",
+      weight: 4
+    }).addTo(map);
+
+    let firstUpdate = true;
+    let receiverMarker = null;
+    let routingControl = null;
+
+    // Track user location and add "Me" to locations. [web:3][web:65]
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(
+        updateLocation,
+        handleError,
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0,
+          timeout: 5000
+        }
+      );
+    } else {
+      alert("Geolocation not supported by your browser.");
+    }
+
+    function updateLocation(position) {
+      userLat = position.coords.latitude;
+      userLon = position.coords.longitude;
+      const accuracy = position.coords.accuracy;
+
+      if (!userMarker) {
+        userMarker = L.marker([userLat, userLon], {
+          icon: userIcon
+        })
+          .addTo(map)
+          .bindPopup("Me (user)");
+        locations.push({ name: "Me", coords: [userLat, userLon] });
+      } else {
+        userMarker.setLatLng([userLat, userLon]);
+      }
+
+      if (accuracyCircle) map.removeLayer(accuracyCircle);
+      accuracyCircle = L.circle([userLat, userLon], {
+        radius: accuracy,
+        color: "#00bfff",
+        opacity: 0.3
+      }).addTo(map);
+
+      if (firstUpdate) {
+        map.setView([userLat, userLon], 14);
+        firstUpdate = false;
+      }
+
+      // Trail
+      pathCoords.push([userLat, userLon]);
+      pathLine.setLatLngs(pathCoords);
+
+      if (routingControl && receiverMarker) {
+        updateRoute();
+      }
+    }
+
+    function handleError(err) {
+      alert("Error getting location: " + err.message);
+    }
+
+    // Set receiver (email receiver location) and draw route. [web:53][web:59]
+    function setReceiverAndRoute() {
+      const lat = parseFloat(document.getElementById("recvLat").value);
+      const lon = parseFloat(document.getElementById("recvLon").value);
+
+      if (isNaN(lat) || isNaN(lon)) {
+        alert("Enter valid receiver latitude and longitude.");
+        return;
+      }
+      if (userLat == null || userLon == null) {
+        alert("Waiting for your location. Allow GPS first.");
+        return;
+      }
+
+      const receiverLatLng = [lat, lon];
+
+      if (receiverMarker) {
+        map.removeLayer(receiverMarker);
+      }
+      receiverMarker = L.marker(receiverLatLng)
+        .addTo(map)
+        .bindPopup("Receiver")
+        .openPopup();
+
+      locations.push({ name: "Receiver", coords: receiverLatLng });
+
+      updateRoute();
+    }
+
+    function updateRoute() {
+      if (!userLat || !userLon || !receiverMarker) return;
+
+      const userLatLng = L.latLng(userLat, userLon);
+      const receiverLatLng = receiverMarker.getLatLng();
+
+      if (routingControl) {
+        map.removeControl(routingControl);
+      }
+
+      routingControl = L.Routing.control({
+        waypoints: [userLatLng, receiverLatLng],
+        lineOptions: {
+          styles: [{ color: "#ff5722", weight: 4 }]
+        },
+        routeWhileDragging: false,
+        draggableWaypoints: false,
+        addWaypoints: false,
+        createMarker: () => null
+      }).addTo(map);
+
+      map.fitBounds([userLatLng, receiverLatLng], { padding: [30, 30] });
+    }
+
+    // Generate email HTML and show it in <pre> for copy-paste. [web:21][web:24][web:22]
+    function generateEmailHtml() {
+      leafletImage(map, function (err, canvas) {
+        if (err) {
+          alert("Error capturing map image");
+          return;
+        }
+
+        const dataUrl = canvas.toDataURL("image/png");
+        const subject = "User ↔ Receiver Route Snapshot";
+        const bodyIntro =
+          "Static snapshot of the route between the user location and email receiver location.";
+
+        const emailHtml =
+          "<!DOCTYPE html>" +
+          "<html><head><meta charset='UTF-8'>" +
+          "<title>" +
+          subject +
+          "</title></head>" +
+          "<body style=\"font-family:Arial,sans-serif;background:#f5f7fa;padding:16px;\">" +
+          "<h2 style='color:#111827;margin-top:0;'>" +
+          subject +
+          "</h2>" +
+          "<p style='color:#374151;font-size:14px;'>" +
+          bodyIntro +
+          "</p>" +
+          "<img src='" +
+          dataUrl +
+          "' alt='User to receiver route map' " +
+          "style='max-width:100%;border:1px solid #e5e7eb;border-radius:8px;' />" +
+          "</body></html>";
+
+        // Show directly in the page for copying
+        document.getElementById("emailOutput").textContent = emailHtml;
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup & Signin Form</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="password"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus,
+        input[type="password"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .hidden-field {
+            display: none;
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 20px;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .upload-label:hover {
+            border-color: #764ba2;
+            background-color: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-text {
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .image-preview {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .image-preview img {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 8px;
+            border: 2px solid #667eea;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .success-message {
+            display: none;
+            padding: 12px;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .footer {
+            padding: 20px 30px;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .toggle-link {
+            color: #667eea;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .toggle-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="headerTitle">Create Account</h1>
+            <p id="headerSubtitle">Join us today</p>
+        </div>
+
+        <div class="form-container">
+            <div class="success-message" id="successMessage">✓ Form submitted successfully!</div>
+
+            <div id="signupForm">
+                <!-- Name Field -->
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" placeholder="John Doe" required>
+                </div>
+
+                <!-- Phone Field -->
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" placeholder="+1 (555) 000-0000" required>
+                </div>
+
+                <!-- Gender Field -->
+                <div class="form-group">
+                    <label for="gender">Gender</label>
+                    <select id="gender" name="gender" required>
+                        <option value="">Select Gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <!-- Address Field -->
+                <div class="form-group">
+                    <label for="address">Permanent Address</label>
+                    <textarea id="address" name="address" placeholder="Enter your full address" required></textarea>
+                </div>
+
+                <!-- Image Upload Field -->
+                <div class="form-group">
+                    <label>Profile Image</label>
+                    <div class="file-upload">
+                        <input type="file" id="imageUpload" name="image" accept="image/*" required>
+                        <label for="imageUpload" class="upload-label">
+                            <div>
+                                <div style="font-size: 24px; margin-bottom: 5px;">📸</div>
+                                <div class="upload-text" id="uploadText">Click to upload image</div>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="image-preview" id="imagePreview"></div>
+                </div>
+            </div>
+
+            <!-- Email Field (Common for both signup and signin) -->
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="you@example.com" required>
+            </div>
+
+            <!-- Password Field -->
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    <button type="button" class="toggle-password" id="togglePassword1">👁️</button>
+                </div>
+            </div>
+
+            <!-- Confirm Password Field (Signup only) -->
+            <div class="form-group hidden-field" id="confirmPasswordGroup">
+                <label for="confirmPassword">Confirm Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="••••••••">
+                    <button type="button" class="toggle-password" id="togglePassword2">👁️</button>
+                </div>
+            </div>
+
+            <button class="submit-btn" id="submitBtn" onclick="handleSubmit()">Create Account</button>
+        </div>
+
+        <div class="footer">
+            <span id="footerText">Already have an account? </span>
+            <span class="toggle-link" onclick="toggleForm()">Sign In</span>
+        </div>
+    </div>
+
+    <script>
+        let isSignup = true;
+
+        // Image upload preview
+        document.getElementById('imageUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('uploadText').textContent = file.name;
+                    document.getElementById('imagePreview').innerHTML = 
+                        '<img src="' + event.target.result + '" alt="Preview">';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Toggle password visibility
+        document.getElementById('togglePassword1').addEventListener('click', function() {
+            const input = document.getElementById('password');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        });
+
+        document.getElementById('togglePassword2').addEventListener('click', function() {
+            const input = document.getElementById('confirmPassword');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        });
+
+        // Toggle between signup and signin
+        function toggleForm() {
+            isSignup = !isSignup;
+            const headerTitle = document.getElementById('headerTitle');
+            const headerSubtitle = document.getElementById('headerSubtitle');
+            const submitBtn = document.getElementById('submitBtn');
+            const signupForm = document.getElementById('signupForm');
+            const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
+            const footerText = document.getElementById('footerText');
+
+            if (isSignup) {
+                headerTitle.textContent = 'Create Account';
+                headerSubtitle.textContent = 'Join us today';
+                submitBtn.textContent = 'Create Account';
+                signupForm.style.display = 'block';
+                confirmPasswordGroup.classList.add('hidden-field');
+                footerText.textContent = 'Already have an account? ';
+            } else {
+                headerTitle.textContent = 'Welcome Back';
+                headerSubtitle.textContent = 'Sign in to your account';
+                submitBtn.textContent = 'Sign In';
+                signupForm.style.display = 'none';
+                confirmPasswordGroup.classList.add('hidden-field');
+                footerText.textContent = "Don't have an account? ";
+            }
+
+            // Clear form
+            clearForm();
+        }
+
+        // Handle form submission
+        function handleSubmit() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (isSignup) {
+                const name = document.getElementById('name').value;
+                const phone = document.getElementById('phone').value;
+                const address = document.getElementById('address').value;
+                const gender = document.getElementById('gender').value;
+                const imageFile = document.getElementById('imageUpload').files[0];
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                if (!name || !phone || !email || !address || !gender || !imageFile) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    alert('Passwords do not match');
+                    return;
+                }
+
+                console.log({
+                    name,
+                    phone,
+                    email,
+                    address,
+                    gender,
+                    image: imageFile.name,
+                    password
+                });
+            } else {
+                if (!email || !password) {
+                    alert('Please fill in email and password');
+                    return;
+                }
+
+                console.log({
+                    email,
+                    password
+                });
+            }
+
+            // Show success message
+            const successMsg = document.getElementById('successMessage');
+            successMsg.classList.add('show');
+            setTimeout(() => {
+                successMsg.classList.remove('show');
+            }, 3000);
+
+            clearForm();
+        }
+
+        // Clear form fields
+        function clearForm() {
+            document.getElementById('name').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('address').value = '';
+            document.getElementById('gender').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('imageUpload').value = '';
+            document.getElementById('imagePreview').innerHTML = '';
+            document.getElementById('uploadText').textContent = 'Click to upload image';
+        }
+
+        // Allow Enter key to submit
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleSubmit();
+            }
+        });
+    </script>
+</body>
+</html>

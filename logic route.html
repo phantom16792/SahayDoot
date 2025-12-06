@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Location Tracker with Trail & Routing</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: #f5f7fa;
+    }
+
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+
+    .info-box {
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      z-index: 1000;
+      font-weight: 600;
+    }
+
+    .leaflet-popup-content-wrapper {
+      background: #1e293b;
+      color: #fff;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    button {
+      background-color: #0078ff;
+      border: none;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005ecb;
+    }
+  </style>
+</head>
+<body>
+
+<div class="info-box">📍 Tracking your live location...</div>
+<div id="map"></div>
+
+<!-- JS Libraries -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
+<script>
+  // Initialize map
+  var map = L.map('map').setView([20.5937, 78.9629], 5);
+
+  // Dark-themed tiles
+  // L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  //   attribution: '&copy; OpenStreetMap contributors'
+  // }).addTo(map);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "© OpenStreetMap contributors",
+      }).addTo(map);
+
+  // User icon
+  var userIcon = L.icon({
+    iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+    iconSize: [45, 45],
+    iconAnchor: [22, 44],
+  });
+
+  // Locations array (25+ India locations)
+  const locations = [
+    { name: "Mumbai", coords: [19.0760, 72.8777] },
+    { name: "Delhi", coords: [28.6139, 77.2090] },
+    { name: "Bangalore", coords: [12.9716, 77.5946] },
+    { name: "Hyderabad", coords: [17.3850, 78.4867] },
+    { name: "Chennai", coords: [13.0827, 80.2707] },
+    { name: "Kolkata", coords: [22.5726, 88.3639] },
+    { name: "Pune", coords: [18.5204, 73.8567] },
+    { name: "Jaipur", coords: [26.9124, 75.7873] },
+    { name: "Ahmedabad", coords: [23.0225, 72.5714] },
+    { name: "Goa (Panaji)", coords: [15.4909, 73.8278] },
+    { name: "Agra (Taj Mahal)", coords: [27.1751, 78.0421] },
+    { name: "Varanasi", coords: [25.3176, 82.9739] },
+    { name: "Lucknow", coords: [26.8467, 80.9462] },
+    { name: "Rishikesh", coords: [30.0869, 78.2676] },
+    { name: "Manali", coords: [32.2396, 77.1887] },
+    { name: "Coimbatore", coords: [11.0168, 76.9558] },
+    { name: "Mysore", coords: [12.2958, 76.6394] },
+    { name: "Patna", coords: [25.5941, 85.1376] },
+    { name: "Shillong", coords: [25.5788, 91.8933] },
+    { name: "Shimla", coords: [31.1048, 77.1734] },
+    { name: "Udaipur", coords: [24.5854, 73.7125] },
+    { name: "Amritsar", coords: [31.6340, 74.8723] },
+    { name: "Bhubaneswar", coords: [20.2961, 85.8245] },
+    { name: "Guwahati", coords: [26.1445, 91.7362] },
+    { name: "Nagpur", coords: [21.1458, 79.0882] },
+    { name: "Home", coords: [21.0974, 79.1444] }
+  ];
+
+  // Add markers for all locations
+  locations.forEach(loc => {
+    L.marker(loc.coords)
+      .addTo(map)
+      .bindPopup(`<b>${loc.name}</b><br><button onclick="startNavigation('${loc.name}')">Navigate</button>`);
+  });
+
+  // Variables
+  let userMarker, accuracyCircle, userLat, userLon;
+  let pathCoords = [];
+  let pathLine = L.polyline([], { color: "#00bfff", weight: 4 }).addTo(map);
+  let routingControl = null;
+  let currentDestination = null;
+  let firstUpdate = true;
+
+  // Track user location
+  if (navigator.geolocation) {
+    navigator.geolocation.watchPosition(updateLocation, handleError, {
+      enableHighAccuracy: true,
+      maximumAge: 0,
+      timeout: 5000
+    });
+  } else {
+    alert("Geolocation not supported by your browser.");
+  }
+
+  function updateLocation(position) {
+    userLat = position.coords.latitude;
+    userLon = position.coords.longitude;
+    var accuracy = position.coords.accuracy;
+
+    // Move marker
+    if (!userMarker) {
+      userMarker = L.marker([userLat, userLon], { icon: userIcon }).addTo(map).bindPopup("You are here");
+    } else {
+      userMarker.setLatLng([userLat, userLon]);
+    }
+
+    // Accuracy circle
+    if (accuracyCircle) map.removeLayer(accuracyCircle);
+    accuracyCircle = L.circle([userLat, userLon], { radius: accuracy, color: "#00bfff", opacity: 0.3 }).addTo(map);
+
+    // Center map on first update
+    if (firstUpdate) {
+      map.setView([userLat, userLon], 13);
+      firstUpdate = false;
+    }
+
+    // Update trail
+    pathCoords.push([userLat, userLon]);
+    pathLine.setLatLngs(pathCoords);
+
+    // Update route if navigating
+    if (currentDestination && routingControl) updateRoute();
+  }
+
+  function handleError(err) {
+    alert("Error getting location: " + err.message);
+  }
+
+  // Start navigation to a destination
+  window.startNavigation = function(cityName) {
+    if (!userLat || !userLon) {
+      alert("Waiting for your location...");
+      return;
+    }
+
+    currentDestination = locations.find(l => l.name === cityName);
+    if (!currentDestination) return;
+
+    updateRoute();
+  };
+
+  function updateRoute() {
+    if (routingControl) map.removeControl(routingControl);
+    routingControl = L.Routing.control({
+      waypoints: [
+        L.latLng(userLat, userLon),
+        L.latLng(currentDestination.coords[0], currentDestination.coords[1])
+      ],
+      lineOptions: { styles: [{ color: "#ff5722", weight: 4 }] },
+      routeWhileDragging: false,
+      draggableWaypoints: false,
+      addWaypoints: false,
+      createMarker: () => null
+    }).addTo(map);
+  }
+
+</script>
+</body>
+</html>
